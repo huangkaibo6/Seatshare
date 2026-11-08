@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0B1F33">
+<title>Seatshare · 提前知道哪个座位要空出来</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ================= 找空座 ================= -->
+  <section class="page active" id="page-find">
+    <header class="hero">
+      <div class="hero-top">
+        <div class="brand">
+          <span class="brand-dot"></span>
+          <span class="brand-name">Seatshare</span>
+        </div>
+        <div class="hero-badge" id="liveBadge"><span class="pulse"></span>实时</div>
+      </div>
+      <h1 class="hero-title">提前知道<br>哪个座位要空出来</h1>
+      <p class="hero-sub">由车上乘客自发分享，不收费，不占座</p>
+    </header>
+
+    <div class="sheet">
+      <!-- 条件选择 -->
+      <div class="selector">
+        <div class="sel-row">
+          <button class="sel-item" id="selLine">
+            <span class="sel-label">线路</span>
+            <span class="sel-value" id="valLine">9 号线</span>
+          </button>
+          <button class="sel-item" id="selDir">
+            <span class="sel-label">方向</span>
+            <span class="sel-value" id="valDir">往曹路</span>
+          </button>
+        </div>
+        <button class="sel-item sel-wide" id="selStation">
+          <span class="sel-label">我在哪一站</span>
+          <span class="sel-value" id="valStation">九亭</span>
+        </button>
+      </div>
+
+      <div class="result-head">
+        <span class="result-title">接下来 5 站</span>
+        <span class="result-count" id="resultCount">0 个空座</span>
+      </div>
+
+      <div id="resultList" class="result-list"></div>
+
+      <div class="tip-card">
+        <div class="tip-icon">ℹ</div>
+        <div class="tip-text">信息由乘客自愿发布，可能不准或失效。请勿与他人争抢，优先礼让老弱病残孕。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 我要下车 ================= -->
+  <section class="page" id="page-post">
+    <header class="hero hero-post">
+      <div class="hero-top">
+        <div class="brand">
+          <span class="brand-dot"></span>
+          <span class="brand-name">Seatshare</span>
+        </div>
+      </div>
+      <h1 class="hero-title">我要下车了</h1>
+      <p class="hero-sub">一句话，让站着的人少等几站</p>
+    </header>
+
+    <div class="sheet">
+      <div class="post-card">
+        <div class="form-block">
+          <div class="form-label">我在第几节车厢</div>
+          <div class="form-hint">看车门上方的数字</div>
+          <div class="car-grid" id="carGrid"></div>
+        </div>
+
+        <div class="form-block">
+          <div class="form-label">我现在在哪一站附近</div>
+          <button class="sel-item sel-wide" id="postFrom">
+            <span class="sel-value" id="valFrom">九亭</span>
+            <span class="sel-arrow">›</span>
+          </button>
+        </div>
+
+        <div class="form-block form-block-last">
+          <div class="form-label">我将在哪一站下车</div>
+          <button class="sel-item sel-wide" id="postTo">
+            <span class="sel-value" id="valTo">徐家汇</span>
+            <span class="sel-arrow">›</span>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btnPublish">发布空座信息</button>
+      <p class="form-disclaimer">发布后匿名展示，仅显示车厢与下车站，不显示你的身份</p>
+
+      <div class="my-posts" id="myPostsWrap">
+        <div class="my-posts-title">我发布的</div>
+        <div id="myPostsList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 数据 ================= -->
+  <section class="page" id="page-stats">
+    <header class="hero hero-stats">
+      <div class="hero-top">
+        <div class="brand">
+          <span class="brand-dot"></span>
+          <span class="brand-name">Seatshare</span>
+        </div>
+      </div>
+      <h1 class="hero-title">验证数据</h1>
+      <p class="hero-sub">只看两个数：有没有人发，有没有人坐上</p>
+    </header>
+
+    <div class="sheet">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-num" id="statPosts">0</div>
+          <div class="stat-label">累计发布</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statViews">0</div>
+          <div class="stat-label">累计查询</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statHits">0</div>
+          <div class="stat-label">坐上了</div>
+        </div>
+        <div class="stat-card stat-accent">
+          <div class="stat-num" id="statRate">—</div>
+          <div class="stat-label">命中率</div>
+        </div>
+      </div>
+
+      <div class="gauge-block">
+        <div class="gauge-head">
+          <span>供给覆盖率（一节车厢 40 座中已知去向）</span>
+          <span class="gauge-val" id="gaugeVal">0%</span>
+        </div>
+        <div class="gauge-track"><div class="gauge-fill" id="gaugeFill"></div></div>
+        <div class="gauge-note">低于 5%（即不足 2 条）说明没人愿意发，产品不成立</div>
+      </div>
+
+      <div class="rule-list">
+        <div class="rule-item">
+          <span class="rule-k">判定线</span>
+          <span class="rule-v">上传率 ≥ 5%，命中率 ≥ 30%</span>
+        </div>
+        <div class="rule-item">
+          <span class="rule-k">有效期</span>
+          <span class="rule-v">到站后 2 分钟自动失效</span>
+        </div>
+        <div class="rule-item">
+          <span class="rule-k">举报</span>
+          <span class="rule-v">3 次自动隐藏</span>
+        </div>
+      </div>
+
+      <button class="btn-ghost" id="btnReset">清空本地数据</button>
+      <p class="form-disclaimer">所有数据存在本机浏览器，不上传服务器。仅用于验证。</p>
+    </div>
+  </section>
+
+  <!-- 底部导航 -->
+  <nav class="tabbar">
+    <button class="tab active" data-tab="find">
+      <svg viewBox="0 0 24 24" class="tab-icon"><path d="M4 17V7a2 2 0 012-2h12a2 2 0 012 2v10M4 17h16M4 17l-1 4M20 17l1 4M8 9h8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="14" r="1.2" fill="currentColor"/><circle cx="15.5" cy="14" r="1.2" fill="currentColor"/></svg>
+      <span>找空座</span>
+    </button>
+    <button class="tab" data-tab="post">
+      <svg viewBox="0 0 24 24" class="tab-icon"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.5v9M7.5 12h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span>我要下车</span>
+    </button>
+    <button class="tab" data-tab="stats">
+      <svg viewBox="0 0 24 24" class="tab-icon"><path d="M5 19V11M12 19V5M19 19v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span>数据</span>
+    </button>
+  </nav>
+</div>
+
+<!-- 底部选择器 -->
+<div class="picker-mask" id="pickerMask">
+  <div class="picker" id="picker">
+    <div class="picker-head">
+      <button class="picker-cancel" id="pickerCancel">取消</button>
+      <div class="picker-title" id="pickerTitle">选择</div>
+      <button class="picker-ok" id="pickerOk">确定</button>
+    </div>
+    <div class="picker-body" id="pickerBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
